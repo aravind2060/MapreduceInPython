@@ -6,8 +6,8 @@ services:
     container_name: namenode
     restart: always
     ports:
-      - 9870:9870
-      - 9000:9000
+      - "9870:9870"
+      - "9000:9000"
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     environment:
@@ -25,7 +25,7 @@ services:
       SERVICE_PRECONDITION: "namenode:9870"
     env_file:
       - ./hadoop.env
-  
+
   datanode2:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode2
@@ -67,7 +67,7 @@ services:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 datanode3:9864 resourcemanager:8088"
     env_file:
       - ./hadoop.env
-  
+
   nodemanager2:
     image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
     container_name: nodemanager2
@@ -86,6 +86,17 @@ services:
     env_file:
       - ./hadoop.env
 
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: python_hadoop
+    restart: always
+    volumes:
+      - .:/app
+    networks:
+      - default
+
   historyserver:
     image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
     container_name: historyserver
@@ -100,6 +111,7 @@ services:
   hive-pig:
     image: mvieira1975/hive-pig:v1
     container_name: hive-pig
+    restart: always
     env_file:
       - ./hadoop-hive.env
     environment:
@@ -107,10 +119,11 @@ services:
       SERVICE_PRECONDITION: "hive-metastore:9083 namenode:9000 resourcemanager:8088"
     ports:
       - "10000:10000"
-      
+
   hive-metastore:
     image: bde2020/hive:2.3.2-postgresql-metastore
     container_name: hive-metastore
+    restart: always
     env_file:
       - ./hadoop-hive.env
     command: /opt/hive/bin/hive --service metastore
@@ -122,7 +135,8 @@ services:
   hive-metastore-postgresql:
     image: bde2020/hive-metastore-postgresql:2.3.0
     container_name: hive-metastore-postgresql
-  
+    restart: always
+
   hue:
     image: gethue/hue:latest
     container_name: hue

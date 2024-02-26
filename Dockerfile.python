@@ -1,0 +1,11 @@
+# Use the official Python 2.7 image as the base
+FROM python:2.7-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install Snakebite, a pure Python HDFS client for Hadoop
+RUN pip install snakebite
+
+# Keep the container running by default
+CMD ["tail", "-f", "/dev/null"]

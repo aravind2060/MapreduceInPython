@@ -37,17 +37,6 @@ services:
     env_file:
       - ./hadoop.env
 
-  datanode3:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode3
-    restart: always
-    volumes:
-      - hadoop_datanode3:/hadoop/dfs/data
-    environment:
-      SERVICE_PRECONDITION: "namenode:9870"
-    env_file:
-      - ./hadoop.env
-
   resourcemanager:
     image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
     container_name: resourcemanager
@@ -55,7 +44,7 @@ services:
     ports:
       - 8088:8088
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 datanode3:9864"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864"
     env_file:
       - ./hadoop.env
 
@@ -64,7 +53,7 @@ services:
     container_name: nodemanager1
     restart: always
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 datanode3:9864 resourcemanager:8088"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 resourcemanager:8088"
     env_file:
       - ./hadoop.env
 
@@ -73,29 +62,9 @@ services:
     container_name: nodemanager2
     restart: always
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 datanode3:9864 resourcemanager:8088"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 resourcemanager:8088"
     env_file:
       - ./hadoop.env
-
-  nodemanager3:
-    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
-    container_name: nodemanager3
-    restart: always
-    environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 datanode2:9864 datanode3:9864 resourcemanager:8088"
-    env_file:
-      - ./hadoop.env
-
-  python:
-    build:
-      context: .
-      dockerfile: Dockerfile.python
-    container_name: python_hadoop
-    restart: always
-    volumes:
-      - .:/app
-    networks:
-      - default
 
   historyserver:
     image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
@@ -107,48 +76,9 @@ services:
       - hadoop_historyserver:/hadoop/yarn/timeline
     env_file:
       - ./hadoop.env
-
-  hive-pig:
-    image: mvieira1975/hive-pig:v1
-    container_name: hive-pig
-    restart: always
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083 namenode:9000 resourcemanager:8088"
-    ports:
-      - "10000:10000"
-
-  hive-metastore:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-metastore
-    restart: always
-    env_file:
-      - ./hadoop-hive.env
-    command: /opt/hive/bin/hive --service metastore
-    environment:
-      SERVICE_PRECONDITION: "namenode:9000 hive-metastore-postgresql:5432"
-    ports:
-      - "9083:9083"
-
-  hive-metastore-postgresql:
-    image: bde2020/hive-metastore-postgresql:2.3.0
-    container_name: hive-metastore-postgresql
-    restart: always
-
-  hue:
-    image: gethue/hue:latest
-    container_name: hue
-    ports:
-      - "8888:8888"
-    restart: always
-    volumes:
-      - ./hue.ini:/usr/share/hue/desktop/conf/hue.ini
-
+      
 volumes:
   hadoop_namenode:
   hadoop_datanode1:
   hadoop_datanode2:
-  hadoop_datanode3:
   hadoop_historyserver:
